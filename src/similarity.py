@@ -13,6 +13,7 @@ def compute_similarity_scores(
 	binding_fragment,
 ) -> pd.DataFrame:
 	"""Compute Tanimoto and Tversky similarity scores for candidate molecules."""
+	# Rapamycin binding fragment for radius 1 and 2
 	binding_fp_r1 = get_fp_from_mole(binding_fragment, 1)
 	binding_fp_r2 = get_fp_from_mole(binding_fragment, 2)
 
