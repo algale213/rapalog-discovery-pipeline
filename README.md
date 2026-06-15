@@ -56,9 +56,9 @@ If these files are missing, Notebook 02 downstream steps that depend on full COC
 | Notebook 03 cache reuse | `SIMILARITY_SCORES_CACHE_FILE="similarity_scores.pkl"`, `P3_SIMILARITY_COL="sim_r1_tv_frag"` | Loads existing similarity-score cache as Phase 3 input. |
 | Notebook 03 reproducible rerun | `RANDOM_STATE=42`, `P3_K_VALUES=[2,4]`, `P3_UMAP_N_NEIGHBORS=50`, `P3_UMAP_MIN_DIST=0.5` | Reuses fixed clustering and UMAP settings for stable reruns. |
 | Notebook 03 debug / iteration | `P3_EVAL_SAMPLE_FRAC=0.05`, `P3_UMAP_SAMPLE_SIZE=3000`, `P3_K_RANGE=range(2,10)` | Runs a reduced configuration for faster iteration. |
-| Notebook 05 first-time build | `DOCKING_RUN_MODE="production"`, `DOCKING_USE_RANDOM_TEST_SET=False`, `DOCKING_LOCK_FINAL_TEST_SET=False`, `DOCKING_RECOMPUTE_LIGANDS=True`, `DOCKING_SKIP_RUN=False` | Builds production candidate and ligand caches, then runs docking. |
-| Notebook 05 cache reuse | `DOCKING_RUN_MODE="production"`, `DOCKING_USE_RANDOM_TEST_SET=False`, `DOCKING_LOCK_FINAL_TEST_SET=True`, `DOCKING_RECOMPUTE_LIGANDS=False`, `DOCKING_SKIP_RUN=False` | Loads cached candidates and ligands and avoids rebuilding them. |
-| Notebook 05 reproducible rerun | `DOCKING_RUN_MODE="production"`, `DOCKING_USE_RANDOM_TEST_SET=False`, `DOCKING_LOCK_FINAL_TEST_SET=True`, `DOCKING_RECOMPUTE_LIGANDS=False`, `DOCKING_SKIP_RUN=False` | Reuses fixed candidates and ligand cache for stable reruns. |
+| Notebook 05 first-time build | `DOCKING_RUN_MODE="production"`, `DOCKING_SAMPLING_METHOD="stratified"`, `DOCKING_LOCK_FINAL_TEST_SET=False`, `DOCKING_RECOMPUTE_LIGANDS=True`, `DOCKING_SKIP_RUN=False` | Builds production candidate and ligand caches, then runs docking. |
+| Notebook 05 cache reuse | `DOCKING_RUN_MODE="production"`, `DOCKING_SAMPLING_METHOD="stratified"`, `DOCKING_LOCK_FINAL_TEST_SET=True`, `DOCKING_RECOMPUTE_LIGANDS=False`, `DOCKING_SKIP_RUN=False` | Loads cached candidates and ligands and avoids rebuilding them. |
+| Notebook 05 reproducible rerun | `DOCKING_RUN_MODE="production"`, `DOCKING_SAMPLING_METHOD="stratified"`, `DOCKING_LOCK_FINAL_TEST_SET=True`, `DOCKING_RECOMPUTE_LIGANDS=False`, `DOCKING_SKIP_RUN=False` | Reuses fixed candidates and ligand cache for stable reruns. |
 | Notebook 05 debug / iteration | `DOCKING_RUN_MODE="debug"`, `DOCKING_LOCK_FINAL_TEST_SET=False`, `DOCKING_RECOMPUTE_LIGANDS=True`, `DOCKING_SKIP_RUN=True` | Runs a reduced workflow for faster iteration. |
 | Shared preprocessing switch | `SKIP_COCONUT_LOADING=True` | Skips COCONUT loading and validation in shared preprocessing utilities. |
 
@@ -137,7 +137,7 @@ Notebook 04 depends on:
 
 Typical production settings in `src/config.py`:
 - `DOCKING_RUN_MODE = "production"`
-- `DOCKING_USE_RANDOM_TEST_SET = False`
+- `DOCKING_SAMPLING_METHOD = "stratified"`
 - `DOCKING_LOCK_FINAL_TEST_SET = False` (first run), then `True` for reruns
 - `DOCKING_RECOMPUTE_LIGANDS = True` (first run), then `False` for reruns
 - `DOCKING_SKIP_RUN = False`

@@ -1,7 +1,7 @@
 """Centralized runtime flags and constants for the rapalog pipeline."""
 # Shared / cross-notebook flags
 # Used by shared src/ modules and multiple notebooks
-SKIP_COCONUT_LOADING = False
+SKIP_COCONUT_LOADING = True
 
 # Pipeline phase controls
 RUN_EDA = True
@@ -63,9 +63,9 @@ P3_UMAP_MIN_DIST = 0.5
 # debug -> smaller / faster iteration
 # production -> full run with fixed candidate set and full ligand prep
 DOCKING_N_SAMPLES_TOTAL = 1000
-DOCKING_RUN_MODE = "production"  # Run in one of: "debug" or "production"
+DOCKING_RUN_MODE = "debug"  # Run in one of: "debug" or "production"
 DOCKING_SIMILARITY_COL = "sim_r1_tv_frag"	# Selects similarity scoring method/hyperparameters 
-DOCKING_USE_RANDOM_TEST_SET = DOCKING_RUN_MODE == "debug"	
+DOCKING_SAMPLING_METHOD = "random" if DOCKING_RUN_MODE == "debug" else "stratified"  # "random" or "stratified"
 DOCKING_RANDOM_TEST_SET_SIZE = 25
 DOCKING_LOCK_FINAL_TEST_SET = False  # True reuses the cached candidate set; False rebuilds it
 
