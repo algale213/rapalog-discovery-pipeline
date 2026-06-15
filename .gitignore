@@ -1,0 +1,13 @@
+# macOS
+.DS_Store
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Notebook checkpoints
+.ipynb_checkpoints/
+
+# Large raw datasets (not tracked in git)
+data/raw/coconut_csv-04-2026.csv
+data/raw/coconut_csv-04-2026.zip
