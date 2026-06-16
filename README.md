@@ -22,6 +22,8 @@ conda activate rapalog-py311
 python -m ipykernel install --user --name rapalog-py311 --display-name "rapalog-py311"
 ```
 
+This repository is meant to stay portable across machines, so use the shared `environment.yml` instead of hardcoding a local interpreter path in the project. After creating the environment, select the `rapalog-py311` kernel in VS Code for notebooks.
+
 If the environment already exists:
 
 ```bash
@@ -64,6 +66,10 @@ If these files are missing, Notebook 02 downstream steps that depend on full COC
 | Notebook 05 debug ligand prep only (stratified 25) | `DOCKING_RUN_MODE="debug"`, `DOCKING_N_SAMPLES_TOTAL=25`, `DOCKING_SAMPLING_METHOD="stratified"`, `DOCKING_LOCK_FINAL_TEST_SET=False`, `DOCKING_RECOMPUTE_LIGANDS=True`, `DOCKING_SKIP_RUN=True` | Prepares ligands only using stratified sampling from Cell 3 logic. |
 | Notebook 05 debug docking from prepared ligands (stratified 25) | `DOCKING_RUN_MODE="debug"`, `DOCKING_N_SAMPLES_TOTAL=25`, `DOCKING_SAMPLING_METHOD="stratified"`, `DOCKING_LOCK_FINAL_TEST_SET=True`, `DOCKING_RECOMPUTE_LIGANDS=False`, `DOCKING_SKIP_RUN=False` | Runs docking on previously prepared stratified debug ligands. |
 | Notebook 05 debug / iteration baseline | `DOCKING_RUN_MODE="debug"`, `DOCKING_LOCK_FINAL_TEST_SET=False`, `DOCKING_RECOMPUTE_LIGANDS=True`, `DOCKING_SKIP_RUN=True` | Runs a reduced workflow for faster iteration. |
+| Notebook 06 first-time build (debug) | `DOCKING_RUN_MODE="debug"`, `BINDING_TARGET_COL="vina_score"`, `BINDING_TEST_SIZE=0.20`, `BINDING_P6_K_RANGE=range(2,15)` | Loads debug Phase 5 docking results, builds Phase 6/7 artifacts, trains all models, and saves outputs to `results/notebook_06/debug/`. |
+| Notebook 06 first-time build (production) | `DOCKING_RUN_MODE="production"`, `BINDING_TARGET_COL="vina_score"`, `BINDING_TEST_SIZE=0.20`, `BINDING_P6_K_RANGE=range(2,15)` | Loads production Phase 5 docking results and saves outputs to `results/notebook_06/prod/`. |
+| Notebook 06 split/regularization tuning | `BINDING_TEST_SIZE`, `BINDING_P7_ALPHA_LOGSPACE_START`, `BINDING_P7_ALPHA_LOGSPACE_STOP`, `BINDING_P7_ALPHA_LOGSPACE_NUM`, `BINDING_P7_ELASTIC_L1_RATIOS` | Adjusts holdout split and ElasticNet/Ridge/Lasso hyperparameter search without editing notebook code. |
+| Notebook 06 PCA/K diagnostics tuning | `BINDING_P6_PCA_CUMVAR_THRESHOLD`, `BINDING_P6_K_RANGE` | Adjusts PCA threshold line and KMeans evaluation range in Phase 6 diagnostics. |
 | Shared preprocessing switch | `SKIP_COCONUT_LOADING=True` | Skips COCONUT loading and validation in shared preprocessing utilities. |
 
 ### Notebook 03 Parameters Used Directly
@@ -79,6 +85,21 @@ If these files are missing, Notebook 02 downstream steps that depend on full COC
 | `P3_UMAP_SAMPLE_SIZE` | Subsample size used in UMAP embedding. |
 | `P3_UMAP_N_NEIGHBORS` | UMAP neighborhood size. |
 | `P3_UMAP_MIN_DIST` | UMAP minimum distance parameter. |
+
+### Notebook 06 Parameters Used Directly
+| Parameter | Used for |
+|---|---|
+| `DOCKING_RUN_MODE` | Selects debug/production folder suffix and input source from Notebook 05 results. |
+| `BINDING_TARGET_COL` | Target column used for binding-affinity regression (`vina_score`). |
+| `BINDING_SIMILARITY_COL` | Similarity feature column used in Phase 6/7 modeling. |
+| `BINDING_TEST_SIZE` | Holdout fraction for stratified train/test split in Phase 7. |
+| `RANDOM_STATE` | Reproducibility seed for split logic and CV models. |
+| `BINDING_P6_PCA_CUMVAR_THRESHOLD` | Reference line threshold in PCA cumulative variance plot. |
+| `BINDING_P6_K_RANGE` | Evaluated k-range for elbow and silhouette diagnostics. |
+| `BINDING_P7_ALPHA_LOGSPACE_START` | Lower log10 bound for regularization alpha grid. |
+| `BINDING_P7_ALPHA_LOGSPACE_STOP` | Upper log10 bound for regularization alpha grid. |
+| `BINDING_P7_ALPHA_LOGSPACE_NUM` | Number of alpha values in regularization grid. |
+| `BINDING_P7_ELASTIC_L1_RATIOS` | Elastic Net L1/L2 mixture candidates for cross-validation. |
 
 
 
@@ -145,6 +166,23 @@ Typical production settings in `src/config.py`:
 - `DOCKING_LOCK_FINAL_TEST_SET = False` (first run), then `True` for reruns
 - `DOCKING_RECOMPUTE_LIGANDS = True` (first run), then `False` for reruns
 - `DOCKING_SKIP_RUN = False`
+
+## Run Notebook 06
+
+1. Open `notebooks/06_binding_affinity_prediction.ipynb`.
+2. Select kernel `rapalog-py311`.
+3. Run cells in order.
+
+Notebook 06 depends on Phase 5 output:
+- `results/notebook_05/debug/docking_results_full.csv` when `DOCKING_RUN_MODE = "debug"`
+- `results/notebook_05/prod/docking_results_full.csv` when `DOCKING_RUN_MODE = "production"`
+
+Typical settings in `src/config.py`:
+- `BINDING_TARGET_COL = "vina_score"`
+- `BINDING_SIMILARITY_COL = DOCKING_SIMILARITY_COL`
+- `BINDING_TEST_SIZE = 0.20`
+- `BINDING_P6_K_RANGE = range(2, 15)`
+- `BINDING_P6_PCA_CUMVAR_THRESHOLD = 0.85`
 
 ## Notes On Docking Packages
 

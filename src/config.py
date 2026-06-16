@@ -62,7 +62,7 @@ P3_UMAP_MIN_DIST = 0.5
 # Notebook 05: docking workflow
 # debug -> smaller / faster iteration
 # production -> full run with fixed candidate set and full ligand prep
-DOCKING_N_SAMPLES_TOTAL = 1000
+DOCKING_N_SAMPLES_TOTAL = 25
 DOCKING_RUN_MODE = "debug"  # Run in one of: "debug" or "production"
 DOCKING_SIMILARITY_COL = "sim_r1_tv_frag"	# Selects similarity scoring method/hyperparameters 
 DOCKING_SAMPLING_METHOD = "random" if DOCKING_RUN_MODE == "debug" else "stratified"  # "random" or "stratified"
@@ -70,9 +70,9 @@ DOCKING_RANDOM_TEST_SET_SIZE = 25
 DOCKING_LOCK_FINAL_TEST_SET = False  # True reuses the cached candidate set; False rebuilds it
 
 # True regenerates ligand PDBQT cache; False reuses it if present.
-DOCKING_RECOMPUTE_LIGANDS = True
+DOCKING_RECOMPUTE_LIGANDS = False
 DOCKING_LIGAND_PREP_PROGRESS_EVERY = 5
-DOCKING_SKIP_RUN = True
+DOCKING_SKIP_RUN = False
 
 # Notebook 05 receptor inputs / outputs
 DOCKING_PDB_FILE = "1FKB.pdb"
@@ -99,6 +99,24 @@ DOCKING_CHECKPOINT_EVERY = 25
 
 DOCKING_OBABEL_PATH = "/opt/homebrew/bin/obabel"
 DOCKING_REMOVE_HETATM_RESNAMES = ["RAP", "HOH"]
+
+# Notebook 06: binding-affinity prediction workflow
+BINDING_TARGET_COL = "vina_score"
+BINDING_SIMILARITY_COL = DOCKING_SIMILARITY_COL
+BINDING_TEST_SIZE = 0.20
+
+# Phase 6 defaults
+BINDING_P6_K_RANGE = range(2, 15)
+BINDING_P6_PCA_CUMVAR_THRESHOLD = 0.85
+BINDING_P6_UMAP_N_NEIGHBORS = 50
+BINDING_P6_UMAP_MIN_DIST = 0.5
+
+# Phase 7 regularization defaults
+# These define np.logspace(start, stop, num) used for ElasticNet/Ridge/Lasso CV.
+BINDING_P7_ALPHA_LOGSPACE_START = -4
+BINDING_P7_ALPHA_LOGSPACE_STOP = 2
+BINDING_P7_ALPHA_LOGSPACE_NUM = 50
+BINDING_P7_ELASTIC_L1_RATIOS = [0.1, 0.5, 0.7, 0.9, 0.95, 0.99, 1.0]
 
 # Future analysis defaults
 RUN_PCA = True
