@@ -1,12 +1,22 @@
 # macOS
 .DS_Store
 
-# Python cache
+# Python caches and local environments
 __pycache__/
 *.py[cod]
+.venv/
+.pytest_cache/
+.coverage
 
-# Notebook checkpoints
+# Notebook files
 .ipynb_checkpoints/
+*.ipynb.tmp
+
+# Generated data and computational checkpoints
+data/processed/
+data/raw/*.pkl
+cache/
+*.pdbqt
 
 # Large raw datasets (not tracked in git)
 data/raw/coconut_csv-04-2026.csv
