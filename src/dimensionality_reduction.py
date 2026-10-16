@@ -110,6 +110,7 @@ def run_umap(
 		min_dist=min_dist,
 		n_components=2,
 		random_state=random_state,
+		n_jobs=1,
 	)
 	X_umap = umap_model.fit_transform(X_umap_in)
 

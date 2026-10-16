@@ -1,0 +1,22 @@
+# Python dependencies for the rapalog discovery pipeline.
+# environment.yml is recommended because it also installs the Open Babel executable.
+
+numpy>=1.26,<2.0
+pandas>=2.0
+matplotlib>=3.8
+seaborn>=0.13
+scipy>=1.11
+scikit-learn>=1.4
+biopython>=1.83
+rdkit>=2026.3
+umap-learn>=0.5
+tqdm>=4.66
+shap>=0.45
+pyarrow>=15
+meeko==0.7.1
+vina==1.2.7
+ipykernel>=6.29
+jupyterlab>=4.0
+notebook>=7.0
+pytest>=8.0
+ipywidgets>=8.1

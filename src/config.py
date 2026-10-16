@@ -1,7 +1,7 @@
 """Centralized runtime flags and constants for the rapalog pipeline."""
 # Shared / cross-notebook flags
 # Used by shared src/ modules and multiple notebooks
-SKIP_COCONUT_LOADING = True
+SKIP_COCONUT_LOADING = False
 
 # Pipeline phase controls
 RUN_EDA = True
@@ -72,7 +72,7 @@ DOCKING_LOCK_FINAL_TEST_SET = False  # True reuses the cached candidate set; Fal
 # True regenerates ligand PDBQT cache; False reuses it if present.
 DOCKING_RECOMPUTE_LIGANDS = False
 DOCKING_LIGAND_PREP_PROGRESS_EVERY = 5
-DOCKING_SKIP_RUN = False
+DOCKING_SKIP_RUN = True
 
 # Notebook 05 receptor inputs / outputs
 DOCKING_PDB_FILE = "1FKB.pdb"
@@ -97,7 +97,7 @@ DOCKING_EXHAUSTIVENESS = 8
 DOCKING_NUM_POSES = 9
 DOCKING_CHECKPOINT_EVERY = 25
 
-DOCKING_OBABEL_PATH = "/opt/homebrew/bin/obabel"
+DOCKING_OBABEL_PATH = "obabel"
 DOCKING_REMOVE_HETATM_RESNAMES = ["RAP", "HOH"]
 
 # Notebook 06: binding-affinity prediction workflow

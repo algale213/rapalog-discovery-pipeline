@@ -1,16 +1,59 @@
 # Rapalog Discovery Pipeline
 
+## Project Overview
+
+This project develops a reproducible computational pipeline for identifying natural products with chemical features and predicted FKBP12 binding behavior related to the FKBP12-binding region of rapamycin. The workflow combines molecular filtering, fragment-based similarity analysis, unsupervised learning, molecular docking, and supervised regression.
+
+The project was developed from coursework in computational chemistry, cheminformatics, and machine learning and has been reorganized into modular Python functions and sequential Jupyter notebooks.
+
+## Scientific Motivation
+
+Rapamycin binds FKBP12 before interacting with the FKBP–rapamycin-binding (FRB) domain of mTOR complex 1. This project investigates whether natural products contain chemical features resembling the FKBP12-facing portion of rapamycin and whether selected candidates are predicted to bind favorably within the FKBP12 pocket.
+
+The current workflow evaluates FKBP12 binding only. It does not establish formation of the complete FKBP12–compound–FRB ternary complex or biological modulation of mTOR signaling.
+
+## Pipeline
+
+1. Explore and quality-check the COCONUT natural-product dataset.
+2. Extract the FKBP12-facing region of rapamycin from PDB structure 1FKB.
+3. Filter compounds using physicochemical and structural criteria.
+4. Calculate Morgan fingerprints and Tanimoto/Tversky similarity.
+5. Characterize chemical space using principal component analysis, K-means clustering, and UMAP.
+6. Select a stratified candidate subset for AutoDock Vina docking.
+7. Model molecular similarity and Vina-derived estimated binding affinity using linear and regularized regression.
+8. Save figures, tables, and reproducible intermediate results.
+
+## Verified Production Results
+
+- Approximately 740,000 COCONUT entries were evaluated.
+- 96,682 compounds passed the project’s physicochemical filters.
+- 1,000 compounds were selected for production docking using cluster- and similarity-aware stratified sampling.
+- 984 compounds successfully completed ligand preparation and AutoDock Vina docking.
+- The production run used a 25 × 25 × 25 Å docking box, exhaustiveness of 8, and up to 9 poses per ligand.
+- 213 compounds received Vina scores below −8.0 kcal/mol.
+- The strongest-scoring candidates included NPD14003, STL518675, CNP0253821.1, and Pentacecilide B.
+
+Vina scores are computational estimates used for ranking. They are not experimentally measured binding affinities or validated free energies of binding.
+
+## Repository Structure
+
+| Path | Purpose |
+|---|---|
+| `notebooks/` | Sequential exploratory, similarity, clustering, docking, and regression analyses |
+| `src/` | Reusable data-processing, fragment-extraction, docking, and visualization functions |
+| `data/raw/` | User-supplied structures and external source data |
+| `data/processed/` | Local intermediate checkpoints, excluded from Git |
+| `results/` | Selected figures, tables, and production results |
+| `docs/` | Methodology, biological interpretation, results, and future work |
+| `run_pipeline.py` | Environment validation and notebook execution entry point |
+
+## Important Limitations
+
+This is a computational screening study. High-ranking candidates require independent validation through repeated docking, alternative receptor conformations, molecular dynamics where appropriate, biochemical binding assays, and functional experiments. Similarity to rapamycin or a favorable FKBP12 docking score does not establish rapamycin-like biological activity.
+
 ## Python Compatibility
 
-This project targets Python 3.11 for compatibility with the package stack used in
-`Project2_Chem277A_v9.ipynb` (notably RDKit, Vina, Meeko, SHAP, and UMAP).
-
-Recommended:
-- Python 3.11
-
-Avoid for this workflow:
-- Python 3.13+
-- Python 3.14
+This project targets Python 3.11 for compatibility with the tested RDKit, AutoDock Vina, Meeko, SHAP, and UMAP package stack.
 
 ## Create The Environment
 
@@ -31,6 +74,14 @@ conda env update -f environment.yml --prune
 conda activate rapalog-py311
 ```
 
+## Validation and Tests
+
+Validate the environment and required project files:
+
+```bash
+python run_pipeline.py --check --require-coconut
+
+
 ## Large Dataset Setup (Not Tracked In Git)
 
 GitHub blocks files above 100 MB, so the full COCONUT dataset files are intentionally not committed:
@@ -38,12 +89,12 @@ GitHub blocks files above 100 MB, so the full COCONUT dataset files are intentio
 - `data/raw/coconut_csv-04-2026.zip`
 
 Expected location:
-- Place both files under `data/raw/`.
+- Place `coconut_csv-04-2026.csv` under `data/raw/`. Retaining the downloaded ZIP archive is optional.
 
 Expected command check from project root:
 
 ```bash
-ls -lh data/raw/coconut_csv-04-2026.csv data/raw/coconut_csv-04-2026.zip
+ls -lh data/raw/coconut_csv-04-2026.csv
 ```
 
 If these files are missing, Notebook 02 downstream steps that depend on full COCONUT data will not run.
@@ -58,8 +109,8 @@ If these files are missing, Notebook 02 downstream steps that depend on full COC
 | Notebook 03 cache reuse | `SIMILARITY_SCORES_CACHE_FILE="similarity_scores.pkl"`, `P3_SIMILARITY_COL="sim_r1_tv_frag"` | Loads existing similarity-score cache as Phase 3 input. |
 | Notebook 03 reproducible rerun | `RANDOM_STATE=42`, `P3_K_VALUES=[2,4]`, `P3_UMAP_N_NEIGHBORS=50`, `P3_UMAP_MIN_DIST=0.5` | Reuses fixed clustering and UMAP settings for stable reruns. |
 | Notebook 03 debug / iteration | `P3_EVAL_SAMPLE_FRAC=0.05`, `P3_UMAP_SAMPLE_SIZE=3000`, `P3_K_RANGE=range(2,10)` | Runs a reduced configuration for faster iteration. |
-| Notebook 05 first-time build | `DOCKING_RUN_MODE="production"`, `DOCKING_SAMPLING_METHOD="stratified"`, `DOCKING_LOCK_FINAL_TEST_SET=False`, `DOCKING_RECOMPUTE_LIGANDS=True`, `DOCKING_SKIP_RUN=False` | Builds production candidate and ligand caches, then runs docking. |
-| Notebook 05 cache reuse | `DOCKING_RUN_MODE="production"`, `DOCKING_SAMPLING_METHOD="stratified"`, `DOCKING_LOCK_FINAL_TEST_SET=True`, `DOCKING_RECOMPUTE_LIGANDS=False`, `DOCKING_SKIP_RUN=False` | Loads cached candidates and ligands and avoids rebuilding them. |
+| Notebook 05 first-time build | `DOCKING_RUN_MODE="production"`, `DOCKING_N_SAMPLES_TOTAL=1000`,  `DOCKING_SAMPLING_METHOD="stratified"`, `DOCKING_LOCK_FINAL_TEST_SET=False`, `DOCKING_RECOMPUTE_LIGANDS=True`, `DOCKING_SKIP_RUN=False` | Builds a stratified set of 1,000 production candidates, prepares the ligands, and runs docking. |
+| Notebook 05 cache reuse | `DOCKING_RUN_MODE="production"`, `DOCKING_SAMPLING_METHOD="stratified"`, `DOCKING_LOCK_FINAL_TEST_SET=True`, `DOCKING_RECOMPUTE_LIGANDS=False`, `DOCKING_SKIP_RUN=True` | Loads the fixed candidates, prepared ligands, and completed docking checkpoint without rerunning docking. |
 | Notebook 05 reproducible rerun | `DOCKING_RUN_MODE="production"`, `DOCKING_SAMPLING_METHOD="stratified"`, `DOCKING_LOCK_FINAL_TEST_SET=True`, `DOCKING_RECOMPUTE_LIGANDS=False`, `DOCKING_SKIP_RUN=False` | Reuses fixed candidates and ligand cache for stable reruns. |
 | Notebook 05 debug ligand prep only (random 25) | `DOCKING_RUN_MODE="debug"`, `DOCKING_RANDOM_TEST_SET_SIZE=25`, `DOCKING_SAMPLING_METHOD="random"`, `DOCKING_RECOMPUTE_LIGANDS=True`, `DOCKING_SKIP_RUN=True` | Prepares ligands only (no docking) using a random debug subset. |
 | Notebook 05 debug docking from prepared ligands (random 25) | `DOCKING_RUN_MODE="debug"`, `DOCKING_RANDOM_TEST_SET_SIZE=25`, `DOCKING_SAMPLING_METHOD="random"`, `DOCKING_LOCK_FINAL_TEST_SET=True`, `DOCKING_RECOMPUTE_LIGANDS=False`, `DOCKING_SKIP_RUN=False` | Runs docking on previously prepared random debug ligands. |
@@ -162,6 +213,7 @@ Notebook 04 depends on:
 
 Typical production settings in `src/config.py`:
 - `DOCKING_RUN_MODE = "production"`
+- `DOCKING_N_SAMPLES_TOTAL = 1000`
 - `DOCKING_SAMPLING_METHOD = "stratified"`
 - `DOCKING_LOCK_FINAL_TEST_SET = False` (first run), then `True` for reruns
 - `DOCKING_RECOMPUTE_LIGANDS = True` (first run), then `False` for reruns

@@ -1,6 +1,9 @@
 # macOS
 .DS_Store
 
+# Editor settings
+.vscode/
+
 # Python caches and local environments
 __pycache__/
 *.py[cod]
@@ -18,6 +21,10 @@ data/raw/*.pkl
 cache/
 *.pdbqt
 
-# Large raw datasets (not tracked in git)
+# Large external COCONUT dataset
 data/raw/coconut_csv-04-2026.csv
 data/raw/coconut_csv-04-2026.zip
+
+# Local diagnostic outputs
+results/notebook_05/debug/
+results/notebook_06/debug/

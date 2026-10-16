@@ -78,7 +78,7 @@ Descriptors included:
   - Topological Polar Surface Area (TPSA)
   - Amide Count
 
-These descriptors served two purposes. First, they were used to characterize the physicochemical properties of candidate molecules and support clustering analyses. Second, they were used as input features for supervised regression models predicting molecular similarity and binding affinity.
+These descriptors served two purposes. First, they were used to characterize the physicochemical properties of candidate molecules and support clustering analyses. Second, they were used as input features for supervised regression models predicting molecular similarity and estimated binding affinity.
 
 
 ## Molecular Representation, Fingerprinting, and Similarity Analysis
@@ -123,11 +123,11 @@ Similarity rankings were subsequently used in three ways:
 
 1. Selection of high-priority candidate molecules for molecular docking.
 2. Investigation of structure-function relationships through clustering analyses.
-3. Construction of supervised regression models relating molecular descriptors to similarity and binding affinity.
+3. Construction of supervised regression models relating molecular descriptors to similarity and estimated binding affinity.
 
 Because similarity calculations are computationally inexpensive relative to molecular docking, candidate ranking served as an efficient first-stage screening strategy for reducing a large chemical search space to a tractable set of molecules for more computationally intensive analyses.
 
-Rather than relying solely on similarity ranking, subsequent analyses evaluated whether molecular descriptors and similarity measures could predict FKBP12 binding affinity, enabling assessment of the relationship between structural similarity and functional activity.
+Rather than relying solely on similarity ranking, subsequent analyses evaluated whether molecular descriptors and similarity measures could predict estimated binding affinity to FKBP12, enabling assessment of the relationship between structural similarity and functional activity.
 
 ### Similarity Method Determination
 Tanimoto and Tversky (**symmetric** and **feature-focused**) similarity metrics were compared across the full dataset and a high-similarity scoring subset candidates to ensure both statistical robustness and enrichment for chemically relevant structures. While the metrics were highly correlated across all molecules (r = 0.97), this correlation decreased substantially among top 5000 candidates (r = 0.79).  Histogram analysis of top candidates shows a rightward shift (greater similarity generally) in Tversky **feature-focused** similarity scores compared to Tversky **symmetric** and Tanimoto methods, consistent with reduced penalty for additional molecular features and improved sensitivity to fragment containment.
@@ -163,27 +163,29 @@ Uniform Manifold Approximation and Projection (UMAP) was applied to visualize ca
 A supervised regression dataset was constructed using molecular descriptors as input features and molecular similarity scores as target values. Similarity scores were calculated using the rapamycin binding fragment as the reference structure. Descriptor features were standardized prior to model training, and training and testing datasets were generated to evaluate predictive performance.
 
 ### Similarity Regression Modeling
-Multiple regression approaches were evaluated, including baseline linear regression, then including Elastic Net, Ridge, and Lasso regularization. These models were used to assess the extent to which conventional molecular descriptors could predict similarity to the rapamycin binding fragment. Specificially, Elastic Net was included to combine L1 (Lasso) and L2 (Ridge) regularization, enabling feature selection while maintaining coefficient stability in the presence of correlated molecular descriptors.  Model coefficients, residual analysis, and diagnostic plots were examined to identify descriptors most strongly associated with rapamycin-like structural characteristics and to evaluate predictive performance. This stage evaluated whether inexpensive molecular descriptors could serve as surrogate predictors of fingerprint-based similarity scores, potentially reducing the need for large-scale similarity calculations in future screening workflows.
+Four regression models were evaluated for predicting molecular similarity: ordinary least-squares linear regression as the unregularized baseline, Lasso regression with L1 regularization, Ridge regression with L2 regularization, and Elastic Net regression combining L1 and L2 regularization. The regularized models were used to reduce overfitting, improve coefficient stability in the presence of correlated molecular descriptors, and identify descriptors associated with similarity to the FKBP12-binding region of rapamycin.
+
+Model coefficients, residual analysis, and diagnostic plots were examined to identify descriptors most strongly associated with rapamycin-like structural characteristics and to evaluate predictive performance. This stage evaluated whether inexpensive molecular descriptors could serve as surrogate predictors of fingerprint-based similarity scores, potentially reducing the need for large-scale similarity calculations in future screening workflows.
 
 ## Molecular Docking
 ### Candidate Selection
-Molecular docking was computationally impractical for the full filtered candidate set. A stratified sampling strategy was therefore employed to select 1,000 candidate molecules for docking, with 971 molecules successfully completing ligand preparation and docking workflows. Sampling was performed proportionally across the two major chemical clusters identified during unsupervised learning (~60/40 distribution) and across similarity-score quartiles within each cluster. This approach preserved both chemical diversity and representation across the similarity-ranking spectrum while maintaining computational tractability.
+Molecular docking was computationally impractical for the full filtered candidate set. A stratified sampling strategy was therefore used to select 1,000 candidate molecules for docking. Of the 1,000 selected candidates, 984 successfully completed ligand preparation and docking. Sampling was performed proportionally across the two major chemical clusters identified during unsupervised learning (~60/40 distribution) and across similarity-score quartiles within each cluster. This approach preserved chemical diversity and representation across the similarity-ranking spectrum while maintaining computational tractability.
 
 ### Docking Box Construction
 The FKBP12 binding site was extracted from the experimentally determined FKBP12–rapamycin crystal structure. Contacting atoms associated with rapamycin binding were used to define the docking region. Docking box dimensions and coordinates were validated numerically and visually to ensure adequate coverage of the FKBP12 binding pocket.
 
 ### AutoDock Vina
-AutoDock Vina was used to estimate binding affinity between candidate molecules and the FKBP12 binding pocket. Ligands were prepared through hydrogen addition, cleanup, and conversion to PDBQT format. The FKBP12 receptor was similarly prepared for docking. Docking parameters exhaustiveness=8 and n_poses=9 were used to balance screening throughput and computational cost, enabling evaluation of 971 candidate molecules on workstation-class hardware. Docking scores were used as computational estimates of binding affinity and do not substitute for experimental validation.
+AutoDock Vina was used to estimate candidate binding within the FKBP12 binding pocket. Ligands were prepared by adding hydrogens, performing structural cleanup, and converting the structures to PDBQT format. The FKBP12 receptor was prepared separately for docking. The production run used a 25 × 25 × 25 Å docking box, exhaustiveness of 8, and up to 9 poses per ligand. In total, 984 compounds were docked successfully. Of these, 213 received Vina scores below −8.0 kcal/mol. These scores are computational ranking estimates rather than experimentally measured binding affinities and should not be interpreted as validated free energies of binding.
 
-## Predicting Binding Affinity from Chemical Features + Similarity
+## Predicting Estimated Binding Affinity from Chemical Features + Similarity
 ### Dataset Construction
-A second supervised regression dataset was constructed using molecular descriptors and similarity scores as predictor variables and AutoDock Vina binding affinity scores as target values. The resulting dataset represented the relationship between molecular structure, rapamycin binding fragment similarity, and predicted FKBP12 binding affinity.
+A second supervised regression dataset was constructed using molecular descriptors and similarity scores as predictor variables and AutoDock Vina scores as target values. These scores were interpreted as estimates of binding affinity to FKBP12.
 
 ### Regression Models
-Multiple regression approaches were evaluated, including baseline linear regression, then including Elastic Net, Ridge, and Lasso regularization. Elastic Net was included again to combine L1 (Lasso) and L2 (Ridge) regularization, enabling feature selection while maintaining coefficient stability in the presence of correlated molecular descriptors.  Regularized models were included to mitigate overfitting, improve coefficient stability, and identify the most informative molecular descriptors associated with binding affinity.
+Four regression models were evaluated: ordinary least-squares linear regression as the unregularized baseline, Lasso regression with L1 regularization, Ridge regression with L2 regularization, and Elastic Net regression combining L1 and L2 regularization. The regularized models were used to reduce overfitting, improve coefficient stability in the presence of correlated molecular descriptors, and identify descriptors associated with estimated binding affinity.
 
 ### Model Evaluation
-Model performance was evaluated using multiple regression error metrics and diagnostic visualizations. Predicted versus observed binding affinity values, residual analyses, and coefficient comparisons were used to assess model quality and interpret relationships between molecular descriptors, similarity measures, and predicted binding affinity. This stage evaluated whether molecular descriptors and similarity measures could serve as surrogate predictors for computationally expensive docking calculations.
+Model performance was evaluated using multiple regression error metrics and diagnostic visualizations. Predicted versus held-out AutoDock Vina scores, residual analyses, and coefficient comparisons were used to assess model quality and interpret relationships among molecular descriptors, similarity measures, and estimated binding affinity. This stage evaluated whether molecular descriptors and similarity measures could serve as surrogate predictors for computationally expensive docking calculations.
 
 ## Workflow Summary
 1. Acquire FKBP12–rapamycin structure and COCONUT natural product database.
@@ -194,9 +196,8 @@ Model performance was evaluated using multiple regression error metrics and diag
 6. Perform PCA, K-Means, and UMAP clustering/visualization.
 7. Train supervised models to predict rapamycin similarity from chemical features.
 8. Perform docking of a stratified subset of candidate molecules using AutoDock Vina.
-9. Train regression models to predict binding affinity from chemical descriptors and similarity measures.
+9. Train regression models to predict estimated binding affinity from chemical descriptors and similarity measures.
 10. Prioritize candidate rapalogs for future experimental validation.
-
 
 ## Computational Environment
 The analysis was performed in Python using:
@@ -212,11 +213,9 @@ The analysis was performed in Python using:
 
 All workflows were implemented using reproducible notebook-based and Python module-based pipelines.
 
-
 ## Reproducibility
 All data processing, feature generation, similarity calculations, clustering analyses, regression modeling, docking workflows, and visualization steps were implemented as reproducible Python workflows. Repository organization separates reusable computational modules from exploratory notebooks to facilitate reproducibility and future extension.
 
-
 ## Study Limitations
-Several limitations should be noted. Binding affinity estimates were derived from AutoDock Vina and therefore represent computational predictions rather than experimentally measured binding. Docking was performed on a stratified subset of candidate molecules due to computational constraints, and alternative docking protocols, molecular dynamics simulations, and experimental validation may yield additional insights. Similarity-based screening may also fail to identify structurally distinct compounds exhibiting comparable functional activity.
+Several limitations should be noted. Estimated binding affinity was derived from AutoDock Vina scores and therefore represents a computational prediction rather than experimentally measured binding. Docking was performed on a stratified subset of candidate molecules because of computational constraints. Alternative docking protocols, molecular dynamics simulations, and experimental validation may yield additional insights. Similarity-based screening may also fail to identify structurally distinct compounds with comparable functional activity.
 

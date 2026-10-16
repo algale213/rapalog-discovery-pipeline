@@ -1,0 +1,29 @@
+name: rapalog-py311
+
+channels:
+  - conda-forge
+  - nodefaults
+
+dependencies:
+  - python=3.11.*
+  - pip
+  - ipykernel
+  - jupyterlab
+  - notebook
+  - numpy=1.26.*
+  - pandas
+  - matplotlib
+  - seaborn
+  - scipy
+  - scikit-learn
+  - biopython
+  - rdkit=2026.03.*
+  - umap-learn
+  - tqdm
+  - shap
+  - pyarrow
+  - openbabel
+  - meeko=0.7.1
+  - vina=1.2.7
+  - pytest
+  - ipywidgets
