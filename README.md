@@ -74,6 +74,14 @@ conda env update -f environment.yml --prune
 conda activate rapalog-py311
 ```
 
+## Validation and Tests
+
+Validate the environment and required project files:
+
+```bash
+python run_pipeline.py --check --require-coconut
+
+
 ## Large Dataset Setup (Not Tracked In Git)
 
 GitHub blocks files above 100 MB, so the full COCONUT dataset files are intentionally not committed:
