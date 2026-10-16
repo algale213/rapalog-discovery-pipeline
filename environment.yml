@@ -26,3 +26,4 @@ dependencies:
   - meeko=0.7.1
   - vina=1.2.7
   - pytest
+  - ipywidgets
