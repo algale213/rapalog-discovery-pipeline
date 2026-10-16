@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rapalog-discovery-pipeline"
+version = "0.2.0"
+description = "Reproducible natural-product screening workflow for FKBP12-binding rapalog candidates"
+readme = "README.md"
+requires-python = ">=3.11,<3.13"
+
+[tool.setuptools.packages.find]
+include = ["src*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
